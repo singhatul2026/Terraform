@@ -1,3 +1,15 @@
+# This Terraform configuration:
+# - Uses the Azure (azurerm) provider with a version constraint (~> 3.0) for controlled upgrades
+# - Configures the provider to interact with Azure services
+# - Creates a Resource Group with tags for environment and ownership tracking
+# - Provisions a Storage Account inside the Resource Group
+# - Demonstrates Terraform dependency handling:
+#     • Implicit dependency: automatically created by referencing Resource Group attributes
+#     • Explicit dependency: can be manually defined using depends_on (shown as commented example)
+# Overall, it showcases how Terraform manages resource creation order using dependencies.
+
+
+
 terraform {
   required_providers {
     azurerm = {
@@ -20,11 +32,6 @@ resource "azurerm_resource_group" "asg-rg" { # This code block is an example of 
     owner       = "asg-morphteam"
   }
 }
-
-
-## Terraform supports two types of dependencies:##
-# 1. Implicit Dependency (automatic)
-# 2. Explicit Dependency (manual using depends_on)
 
 
 resource "azurerm_storage_account" "asg_storage_account" { # This code block is an example of a azurerm_storage_account with Implicit Dependency

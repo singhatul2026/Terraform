@@ -1,3 +1,16 @@
+# This Terraform configuration:
+# - Uses the Azure (azurerm) provider with a fixed version for consistency
+# - Stores Terraform state remotely in Azure Storage (backend) for secure, shared access
+# - Creates an Azure Resource Group in a specified region
+# - Provisions a Storage Account inside that Resource Group
+# - Creates a private Storage Container within the Storage Account
+# Overall, it sets up the required infrastructure to manage and store Terraform state in Azure.
+
+
+##################################################################################
+# TERRAFORM BLOCK : # Defines which provider Terraform should use and its version
+##################################################################################
+
 terraform {
   required_providers {
     azurerm = {
@@ -5,6 +18,10 @@ terraform {
       version = "4.70.0"            # Lock provider version to avoid unexpected changes
     }
   }
+
+  ##################################################################################
+  # BACKEND (AZURERM) : Stores Terraform state remotely in Azure Storage
+  ##################################################################################
 
   backend "azurerm" {                              # Optional: Remote backend for storing Terraform state in Azure
     resource_group_name  = "asg-resource-group"    # Resource group where storage exists
@@ -14,15 +31,27 @@ terraform {
   }
 }
 
+##################################################################################
+# PROVIDER BLOCK : Connects Terraform with Azure APIs
+##################################################################################
+
 provider "azurerm" {
   features {} # Required block for Azure provider (even if empty)
 }
+
+##################################################################################
+# RESOURCE GROUP : Logical container for Azure resources
+##################################################################################
 
 resource "azurerm_resource_group" "asg_rg" { # Defines an Azure Resource Group
   name       = "asg-resource-group"          # Name of the resource group
   location   = "eastus"                      # Azure region where resources will be created
   managed_by = "Terraform"                   # Optional metadata showing who manages this resource
 }
+
+##################################################################################
+# STORAGE ACCOUNT : Provides storage service in Azure
+##################################################################################
 
 resource "azurerm_storage_account" "asg_storage_account" {          # Creates a Storage Account
   name                     = "asgnewstorage123"                     # Must be globally unique, lowercase, 3–24 chars
@@ -31,6 +60,10 @@ resource "azurerm_storage_account" "asg_storage_account" {          # Creates a 
   account_tier             = "Standard"                             # Performance tier (Standard or Premium)
   account_replication_type = "LRS"                                  # Redundancy type (Locally Redundant Storage)
 }
+
+##################################################################################
+# STORAGE CONTAINER : Blob container inside Storage Account
+##################################################################################
 
 resource "azurerm_storage_container" "asg_storage_container" {             # Creates a container inside storage account
   name                  = "asg-container"                                  # Name of the container

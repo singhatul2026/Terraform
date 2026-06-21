@@ -1,7 +1,17 @@
-#############################################################
-# TERRAFORM BLOCK
-#    → Defines which provider Terraform should use and its version
-#############################################################
+# This Terraform configuration:
+# - Uses the Azure (azurerm) provider with a fixed version to ensure stable and consistent deployments
+# - Authenticates and connects Terraform with Azure services using the provider block
+# - Creates a Resource Group to logically organize all Azure resources
+# - Provisions a Storage Account within the Resource Group
+# - Creates a private Storage Container inside the Storage Account
+# - Demonstrates Terraform’s dependency management using implicit dependencies
+#   (resources are created in the correct order automatically based on references)
+# Overall, it sets up a complete Azure storage infrastructure with proper resource hierarchy and dependencies.
+
+
+##################################################################################
+# TERRAFORM BLOCK : # Defines which provider Terraform should use and its version
+##################################################################################
 
 terraform {
   required_providers {
@@ -12,21 +22,18 @@ terraform {
   }
 }
 
-
-#############################################################
-# PROVIDER BLOCK
-#    → Used to authenticate and interact with Azure APIs
-#############################################################
+#######################################################################
+# PROVIDER BLOCK → Used to authenticate and interact with Azure APIs
+#######################################################################
 
 provider "azurerm" {
   features {} # Mandatory block (even if empty)
 }
 
 
-#############################################################
-# RESOURCE GROUP
-#    → Logical container for all Azure resources
-#############################################################
+######################################################################
+# RESOURCE GROUP → Logical container for all Azure resources  
+######################################################################
 
 resource "azurerm_resource_group" "asg_rg" {
   name       = "asg-resource-group" # Name of the Resource Group in Azure
@@ -39,23 +46,10 @@ resource "azurerm_resource_group" "asg_rg" {
 }
 
 
-#############################################################
-# DEPENDENCY CONCEPT
-#    → Terraform supports two types:
-#
-# 1. Implicit Dependency:
-#    → Automatically created when one resource references another
-#
-# 2. Explicit Dependency:
-#    → Manually defined using "depends_on"
-#############################################################
 
-
-
-#############################################################
-# STORAGE ACCOUNT (IMPLICIT DEPENDENCY)
-#    → Depends automatically on Resource Group
-#############################################################
+###################################################################################
+# STORAGE ACCOUNT (IMPLICIT DEPENDENCY) → Depends automatically on Resource Group 
+###################################################################################
 
 resource "azurerm_storage_account" "asg_storage_account" {
 
@@ -68,83 +62,14 @@ resource "azurerm_storage_account" "asg_storage_account" {
 
 
 
-#############################################################
-# STORAGE CONTAINER (IMPLICIT DEPENDENCY)
-#    → Depends on Storage Account
-#############################################################
+###########################################################################
+# STORAGE CONTAINER (IMPLICIT DEPENDENCY)  → Depends on Storage Account
+###########################################################################
 
 resource "azurerm_storage_container" "asg_storage_container" {
   name                  = "asg-container"                                  # Container name
   storage_account_name  = azurerm_storage_account.asg_storage_account.name # ↑ Implicit dependency: Storage Account must exist
   container_access_type = "private"                                        #  No public access
 }
-
-
-
-#############################################################
-# STORAGE ACCOUNT (EXPLICIT DEPENDENCY EXAMPLE)
-#    → It understands which resource to create first
-
-# Shows how to manually define dependency using depends_on
-# ↑ Explicit dependency:
-#  → It understands which resource to create first
-#  →Terraform will create this storage account ONLY AFTER container is created
-#############################################################
-
-# resource "azurerm_storage_account" "asg_storage_account_2" {
-#   name                = "asgstorage456"                                                # Must be globally unique
-#   resource_group_name = azurerm_resource_group.asg_rg.name
-#   location            = "eastus"
-#   account_tier             = "Standard"
-#   account_replication_type = "LRS"
-#   depends_on = [
-#     azurerm_storage_container.asg_storage_container
-#   ]
-# }
-
-#############################################################
-# NOTES (IMPORTANT)
-#############################################################
-
-# 1. Terraform works on "state" and "dependency graph"
-#    → It understands which resource to create first
-
-# 2. Implicit Dependency (BEST PRACTICE)
-#    Example:
-#    resource_group_name = azurerm_resource_group.asg_rg.name
-#    → Terraform auto understands dependency
-
-# 3. Explicit Dependency (USE ONLY WHEN NEEDED)
-#    depends_on = [resource_name]
-#    → Force order manually
-
-# 4. Naming Rules:
-#    - Storage account name must be:
-#      ✔ globally unique
-#      ✔ lowercase
-#      ✔ no special characters
-
-# 5. Execution Flow:
-#    Step 1 → Resource Group
-#    Step 2 → Storage Account
-#    Step 3 → Storage Container
-#    Step 4 → Explicit dependent resources
-
-# 6. Real DevOps Use Case:
-#    - Storage Account → Terraform backend
-#    - Container → store tfstate files
-#    - Resource Group → environment isolation
-
-# 7. Common Mistakes (you had earlier):
-#    ❌ "resources" instead of "resource"
-#    ❌ Missing quotes ("eastus")
-#    ❌ Wrong references (asg-resource-group instead of Terraform reference)
-#    ❌ Circular dependencies
-
-#############################################################
-
-
-
-
 
 

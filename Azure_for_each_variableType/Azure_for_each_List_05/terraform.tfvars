@@ -1,0 +1,1 @@
+asgResource_group = ["tfvarsrg1", "tfvarsrg2", "tfvarsrg3", "tfvarsrg4"]
