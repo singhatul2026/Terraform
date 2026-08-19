@@ -1,3 +1,0 @@
-variable "Virtual_Networks" {
-
-}
