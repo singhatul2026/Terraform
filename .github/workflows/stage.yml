@@ -6,7 +6,7 @@ on:
       - stage
 
 jobs:
-  terraform-validation:
+ stage-terraform-validation:
     runs-on: ubuntu-latest
 
     steps:
