@@ -6,7 +6,7 @@ on:
       - stage
 
 env:
-  TF_WORKING_DIR: "./Terraform Modules/Non-Production"
+  TF_WORKING_DIR: "./Terraform-Modules/Non-Production"
 
 jobs:
   stage-terraform-validation:
