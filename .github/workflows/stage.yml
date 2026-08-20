@@ -33,6 +33,7 @@ jobs:
           terraform_version: 1.15.8
 
       - name: Terraform Format Check
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check -recursive
 
       - name: Terraform Init
