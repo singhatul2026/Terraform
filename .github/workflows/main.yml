@@ -1,0 +1,38 @@
+name: Terraform Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform-deployment:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Run Terraform Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          hide-progress: true
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
