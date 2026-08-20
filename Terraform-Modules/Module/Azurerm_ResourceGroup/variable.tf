@@ -1,0 +1,1 @@
+variable "Resource_Groups" {}
