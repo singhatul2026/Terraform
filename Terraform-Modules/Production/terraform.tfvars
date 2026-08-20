@@ -1,8 +1,8 @@
 Resource_Groups = {
   NonProd_RG1 = {
     resource_group_name = "asg-Prod-RG1"
-    location   = "East US"
-    managed_by = "Terraform"
+    location            = "East US"
+    managed_by          = "Terraform"
     tags = {
       environment = "Prod"
       owner       = "atul_singh"
@@ -10,9 +10,9 @@ Resource_Groups = {
   }
 
   NonProd_RG2 = {
-   resource_group_name = "asg-Prod-RG2"
-    location   = "Central US"
-    managed_by = "Terraform"
+    resource_group_name = "asg-Prod-RG2"
+    location            = "Central US"
+    managed_by          = "Terraform"
     tags = {
       environment = "Prod"
       owner       = "atul_singh"
