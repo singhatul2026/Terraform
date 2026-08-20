@@ -5,6 +5,9 @@ on:
     branches:
       - stage
 
+env:
+  TF_WORKING_DIR: "./Terraform Modules/Non-Production"
+
 jobs:
   stage-terraform-validation:
     runs-on: ubuntu-latest
@@ -24,19 +27,22 @@ jobs:
           terraform_version: 1.15.8
 
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive
+        run: terraform fmt -check -recursive ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init
 
       - name: Terraform Validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
       - name: Terraform Plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -out=tfplan -input=false
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: tfplan
+          path: ${{ env.TF_WORKING_DIR }}/tfplan
