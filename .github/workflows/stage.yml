@@ -1,4 +1,5 @@
 name: Terraform Stage Validation
+
 on:
   push:
     branches:
@@ -31,6 +32,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.15.8
+
+      - name: Debug Paths
+        run: |
+          echo "TF_WORKING_DIR=${{ env.TF_WORKING_DIR }}"
+          pwd
+          ls -la
+          find . -type d | sort
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive "${{ env.TF_WORKING_DIR }}"
