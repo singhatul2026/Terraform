@@ -1,5 +1,4 @@
 name: Terraform Stage Validation
-
 on:
   push:
     branches:
@@ -8,9 +7,16 @@ on:
 env:
   TF_WORKING_DIR: "./Terraform Modules/Non-Production"
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
-  stage-terraform-validation:
+  scan-and-validate:
     runs-on: ubuntu-latest
+
+    environment:
+      name: non-production
 
     steps:
       - name: Checkout Repository
@@ -27,7 +33,7 @@ jobs:
           terraform_version: 1.15.8
 
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive ${{ env.TF_WORKING_DIR }}
+        run: terraform fmt -check -recursive
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -37,6 +43,28 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
+      - name: Install TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Run TFLint
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          tflint --init
+          tflint
+
+      - name: Run Checkov Security Scan
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ${{ env.TF_WORKING_DIR }}
+          framework: terraform
+
+      - name: Run Trivy Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: ${{ env.TF_WORKING_DIR }}
+          severity: HIGH,CRITICAL
+
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -out=tfplan -input=false
@@ -44,5 +72,9 @@ jobs:
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tfplan
+          name: tfplan-stage
           path: ${{ env.TF_WORKING_DIR }}/tfplan
+
+      - name: Terraform Apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
