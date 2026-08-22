@@ -56,11 +56,13 @@ jobs:
 
       - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Run Checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: ${{ env.TF_WORKING_DIR }}
+          working-directory: ${{ env.TF_WORKING_DIR }}
           framework: terraform
           soft_fail: false
 
