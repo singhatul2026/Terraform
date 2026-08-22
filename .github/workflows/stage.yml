@@ -15,7 +15,7 @@ permissions:
 
 env:
   TF_WORKING_DIR: ./Terraform-Modules/Non-Production
-  TF_VERSION: 1.13.2
+  TF_VERSION: 1.15.8
 
 jobs:
   terraform-validation:
