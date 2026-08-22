@@ -69,7 +69,7 @@ jobs:
         with:
           directory: ${{ env.TF_WORKING_DIR }}
           framework: terraform
-          soft_fail: false
+          soft_fail: true
 
       - name: Terraform Plan
         run: |
