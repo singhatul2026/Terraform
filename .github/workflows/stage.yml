@@ -16,10 +16,10 @@ permissions:
 env:
   TF_WORKING_DIR: ./Terraform-Modules/Non-Production
   TF_VERSION: 1.15.8
+  TRIVY_SEVERITY: CRITICAL,HIGH
 
 jobs:
   terraform-validation:
-
     name: Terraform Validation and Security Scan
     runs-on: ubuntu-latest
 
@@ -28,7 +28,6 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -54,8 +53,14 @@ jobs:
           tflint --init
           tflint --recursive
 
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
+      - name: Run Trivy IaC Scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: ${{ env.TF_WORKING_DIR }}
+          format: table
+          exit-code: "1"
+          severity: ${{ env.TRIVY_SEVERITY }}
 
       - name: Run Checkov
         uses: bridgecrewio/checkov-action@master
@@ -67,12 +72,8 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-          -input=false \
-          -out=tfplan
+            -input=false \
+            -out=tfplan
 
       - name: Upload Terraform Plan
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plan
-          path: ${{ env.TF_WORKING_DIR }}/tfplan
-
+        uses: actions/upload-artifact
