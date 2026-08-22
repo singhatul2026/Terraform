@@ -15,6 +15,6 @@ Resource_Groups = {
     tags = {
       environment = "non-prod"
       owner       = "atul_singh"
-    }
+    }  
   }
 }
