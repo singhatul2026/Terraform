@@ -1,0 +1,88 @@
+name: Stage Terraform Validation
+on:
+  workflow_dispatch:
+  
+  push:
+    branches:
+      - stage
+
+  pull_request:
+    branches:
+      - stage
+    paths:
+      - 'Terraform-Modules/Non-Production/**'
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  TF_WORKING_DIR: ./Terraform-Modules/Non-Production
+  TF_VERSION: 1.15.8
+  TRIVY_SEVERITY: CRITICAL,HIGH
+
+jobs:
+  terraform-validation:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Run TFLint
+        run: |
+          tflint --init
+          tflint --recursive
+
+      - name: Run Trivy IaC Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: ${{ env.TF_WORKING_DIR }}
+          format: table
+          exit-code: "1"
+          severity: ${{ env.TRIVY_SEVERITY }}
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ${{ env.TF_WORKING_DIR }}
+          framework: terraform
+          soft_fail: true
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -input=false -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ env.TF_WORKING_DIR }}/tfplan
+          
