@@ -18,6 +18,15 @@ Resource_Groups = {
       owner       = "atul_singh"
     }
   }
+  NonProd_RG3 = {
+    resource_group_name = "asg-NonProd-RG3"
+    location            = "Central US"
+    managed_by          = "Terraform"
+    tags = {
+      environment = "non-prod"
+      owner       = "atul_singh"
+    }
+  }
 }
 
 Virtual_Networks = {
