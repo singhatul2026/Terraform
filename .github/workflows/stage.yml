@@ -1,9 +1,14 @@
 name: Stage Terraform Validation
-
 on:
+  push:
+    branches:
+      - stage
+
   pull_request:
     branches:
       - stage
+    paths:
+      - 'Terraform-Modules/Non-Production/**'
 
 permissions:
   contents: read
