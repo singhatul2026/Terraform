@@ -22,7 +22,7 @@ env:
   TRIVY_SEVERITY: CRITICAL,HIGH
 
 jobs:
-  terraform-validation:
+  terraform-init-fmt-validate-scan-plan:
     runs-on: ubuntu-latest
 
     defaults:
